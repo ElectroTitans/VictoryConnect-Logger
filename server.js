@@ -17,7 +17,9 @@ app.get('/web_script.js', function(req, res){
 
 io.on('connection', function(socket){
   console.log('a user connected');
-  client.setTickRate(tickRate);
+  
+  client.on("ready", ()=>{
+    client.setTickRate(tickRate);
   client.subscribe("*", (packet)=>{
       io.emit("topic",packet);
       packets++;
@@ -25,6 +27,7 @@ io.on('connection', function(socket){
 
   client.registerCommand("test/web/alert",(packet)=>{
     io.emit("alert", packet.data[0]);
+  })
   })
 
   socket.on("command_send",(packet)=>{

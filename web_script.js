@@ -157,7 +157,7 @@ $(function () {
         Vue.set(rawTable.topics, packet.path,{
             path: packet.path,
             value: packet.data,
-            lastUpdated: new Date().getHours() + ":"+ new Date().getMinutes() + ":" + new Date().getSeconds() + "" + new Date().getMilliseconds()
+            lastUpdated: new Date().getHours() + ":"+ new Date().getMinutes() + ":" + new Date().getSeconds() + "." + new Date().getMilliseconds()
         });
 
         if (packet.path == toGraph) {
