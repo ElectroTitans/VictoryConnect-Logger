@@ -1,42 +1,126 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * { margin: 100; padding: 0; box-sizing: border-box; }
-      body { font: 38px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-   
+
+<head>
+  <title>Socket.IO chat</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    crossorigin="anonymous">
+
+</head>
+
+<body>
+  <div class="container-fluid  bg-dark">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="card text-white bg-dark">
+          <div class="card-body">
+            <div id="chartContainer" style="height: 370px; width:100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6" id="chart-stats">
+        <div class="card text-white bg-dark">
+            <div class="card-header">
+                Graph Stats
+              </div>
+          <div class="card-body">
+          
+            <p class="display-4">Min: {{min}}</p>
+            <p class="display-4">Max: {{max}}</p>
+            <p class="display-4">Avg: {{avg}}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12" id="command-send">
+        <div class="card text-white bg-dark">
+          <div class="card-header">
+            Send Command
+          </div>
+          <div class="card-body">
+             <div class="row">
+               <div class="col-sm-4">
+                  <input type="text" class="form-control" id="path" placeholder="command_path" v-model="path" >
+               </div>
+               <div class="col-sm-6">
+                  <input type="text" class="form-control" id="data" placeholder="data,data2" v-model="data" >
+              
+               </div>
+
+               <div class="col-sm-2">
+                  <button class="btn-success btn" v-on:click="send(path,data)">Send Cmmand</button>
+               </div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card text-white bg-dark">
+          <div class="card-body">
+            <table class="table table-dark table-hover " id="raw-table">
+              <thead>
+                <tr>
+                  <th scope="col">topic</th>
+                  <th scope="col">value</th>
+                  <th scope="col">last update</th>
+                </tr>
+              </thead>
+              <tbody v-for="topic in topics">
+                <tr v-on:click="setGraph(topic.path)" v-bind:id="topic.path">
+
+                  <td style="width:  40%">{{topic.path}}</td>
+                  <td style="width:  40%">{{topic.value}}</td>
+                  <td style="width:  20%">{{topic.lastUpdated}}</td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-4" id="net-stats">
+        <div class="card text-white bg-dark">
+          <div class="card-body">
+            <h2>Network Stats:</h2>
+            <p class="display-4">Packets: {{packets}}</p>
+            <p class="display-4">Tick Rate: {{tickRate}}</p>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+
+
+    <ul id="messages" class="list-group"></ul>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+      crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+      crossorigin="anonymous"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-    $(function () {
-    var socket = io();
-    var showing = {};
-    socket.on('alert', function(msg){
-      alert(msg);
-      console.log(msg)
-    })
-    socket.on('topic', function(packet){
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"></script>
+    <script src="web_script.js"></script>
 
-
-        if(showing[packet.path]){
-            document.getElementById(packet.path).innerText = packet.path + " - " +  packet.data ;
-            return;
-        }
-        
-        $('#messages').append($('<li>').text(packet.data).attr('id',packet.path));
-        showing[packet.path] = true;
-    })})
     </script>
-  </body>
+</body>
+
 </html>
