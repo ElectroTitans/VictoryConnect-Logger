@@ -10,6 +10,5 @@
   "license": "ISC",
   "dependencies": {
     "socket.io": "^2.2.0",
-    "vicconnect-client": "0.0.3"
   }
 }
